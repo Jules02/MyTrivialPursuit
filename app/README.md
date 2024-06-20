@@ -1,1 +1,0 @@
-Projet d'application Trivial Pursuit pour Android réalisé dans le cadre de l'introduction au département Informatique (juin 2024).
