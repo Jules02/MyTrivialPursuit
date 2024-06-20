@@ -12,6 +12,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import java.util.Collections;
 import java.util.Random;
 import java.util.Vector;
 import java.util.stream.IntStream;
@@ -28,6 +29,8 @@ public class MainActivity extends AppCompatActivity {
 
     int n;
     int[] cartes_restantes;
+
+    boolean quiz_over;
 
     public Button pick_button(int index) {
         if (index == 1) {
@@ -56,11 +59,7 @@ public class MainActivity extends AppCompatActivity {
         q = new Quiz();
 
         ind_c = 0;
-
         newCarte();
-
-        //n = q.getNbCartes();
-        //cartes_restantes = IntStream.range(1, n+1).toArray();
     }
 
     public void newCarte() {
@@ -74,6 +73,8 @@ public class MainActivity extends AppCompatActivity {
         b_right.setText(c.getBonneReponse());
 
         Vector<String> wrong_ans = c.getMauvaisesReponses();
+        Collections.shuffle(wrong_ans);
+
         int k = 0;
         for (int i = 0; i < 4; i++) {
             if (i != i_right) {
@@ -97,17 +98,24 @@ public class MainActivity extends AppCompatActivity {
         }
 
         Toast toast = new Toast(getApplicationContext());
-        if (ans == i_right) {
-            toast.setText("Bravo !");
-            ind_c++;
-            if (ind_c < 3) {
-                newCarte();
+        if (!quiz_over) {
+            if (ans == i_right) {
+                toast.setText("Bravo !");
+                ind_c++;
+                if (ind_c >= 3) {
+                    toast.setText("Féliciations, vous avez terminé le quiz !");
+                    quiz_over = true;
+                } else {
+                    newCarte();
+                }
             } else {
-                toast.setText("Fin du test, félicitations !");
+                toast.setText("Mauvaise réponse.");
             }
         } else {
-            toast.setText("Mauvaise réponse.");
+            toast.setText("Le test est terminé.");
         }
         toast.show();
     }
+
+
 }
