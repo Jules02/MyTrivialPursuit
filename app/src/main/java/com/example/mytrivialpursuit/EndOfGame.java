@@ -2,6 +2,7 @@ package com.example.mytrivialpursuit;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -28,10 +29,10 @@ public class EndOfGame extends AppCompatActivity {
 
         Intent appelant = getIntent();
         int score = appelant.getIntExtra("s", 0);
+        int max_score = appelant.getIntExtra("ms", 0);
 
-        TextView question_text = new TextView(getApplicationContext());
-        System.out.println(score);
-        question_text.setText("Félicitations, vous avez terminé le quiz !");
-        layout.addView(question_text);
+        TextView congrats_text = new TextView(getApplicationContext());
+        congrats_text.setText("Félicitations, vous avez terminé le quiz !\nVotre score: " + String.valueOf(score) + "/" + String.valueOf(max_score));
+        layout.addView(congrats_text);
     }
 }

@@ -39,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
     int[] cartes_restantes;
 
     int score;
+    int max_score;
     int tries;
     boolean quiz_over;
 
@@ -59,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
 
         ind_c = 0;
         score = 0;
+        max_score = q.getNbCartes() * 2;
         tries = 0;
         newCarte();
     }
@@ -99,6 +101,7 @@ public class MainActivity extends AppCompatActivity {
                         if (ind_c >= 3) {
                             Intent intentEndOfGame = new Intent(getApplicationContext(), EndOfGame.class);
                             intentEndOfGame.putExtra("s", score);
+                            intentEndOfGame.putExtra("ms", max_score);
                             startActivity(intentEndOfGame);
                             quiz_over = true;
                         } else {
