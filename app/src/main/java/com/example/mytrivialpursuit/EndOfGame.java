@@ -10,12 +10,15 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+
+import java.util.zip.InflaterInputStream;
 
 public class EndOfGame extends AppCompatActivity {
 
@@ -46,6 +49,10 @@ public class EndOfGame extends AppCompatActivity {
             int record = sharedPreferences.getInt("record", -1);
             String record_holder = sharedPreferences.getString("record_holder", "Nobody");
             if (score >= record) {
+                TextView new_record_text = new TextView(getApplicationContext());
+                new_record_text.setText("Vous établissez un nouveau record ! (ancien record: " + String.valueOf(record) + ", établi par " + record_holder + ")\n Renseignez votre pseudo:");
+                layout.addView(new_record_text);
+
                 EditText editTextPseudo = new EditText(getApplicationContext());
                 layout.addView(editTextPseudo);
 
@@ -60,15 +67,23 @@ public class EndOfGame extends AppCompatActivity {
                         editor.putInt("record", score);
                         editor.putString("record_holder", pseudo);
                         editor.apply();
+
+                        Intent intentMain = new Intent(getApplicationContext(), MainActivity.class);
+                        startActivity(intentMain);
+                        Toast.makeText(getApplicationContext(), "Continuez à l'améliorer !", Toast.LENGTH_SHORT).show();
                     }
                 });
                 layout.addView(confirm_pseudo_b);
             } else {
-                TextView record_text = new TextView(getApplicationContext());
-                record_text.setText("Le record est détenu par " + record_holder + ", qui a obtenu un score de " + String.valueOf(record));
-                layout.addView(record_text);
+                TextView no_record_text = new TextView(getApplicationContext());
+                no_record_text.setText("Hélas, ce n'est pas assez pour battre l'ancien record de " + String.valueOf(record) + " points, établi par " + record_holder);
+                layout.addView(no_record_text);
             }
         } else {
+            TextView new_record_text = new TextView(getApplicationContext());
+            new_record_text.setText("Vous établissez un nouveau record ! (premier joueur)\nRenseignez votre pseudo:");
+            layout.addView(new_record_text);
+
             EditText editTextPseudo = new EditText(getApplicationContext());
             String pseudo = editTextPseudo.getText().toString();
             layout.addView(editTextPseudo);
@@ -83,6 +98,10 @@ public class EndOfGame extends AppCompatActivity {
                     editor.putInt("record", score);
                     editor.putString("record_holder", pseudo);
                     editor.apply();
+
+                    Intent intentMain = new Intent(getApplicationContext(), MainActivity.class);
+                    startActivity(intentMain);
+                    Toast.makeText(getApplicationContext(), "Continuez à l'améliorer !", Toast.LENGTH_SHORT).show();
                 }
             });
             layout.addView(confirm_pseudo_b);
