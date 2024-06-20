@@ -13,7 +13,6 @@ public class Quiz {
         c1.setBonneReponse("Bugdroid");
         c1.addMauvaiseReponse("Andy the Android");
         c1.addMauvaiseReponse("RoboBob");
-        c1.addMauvaiseReponse("Droidy");
         cartes.add(c1);
 
         Carte c2 = new Carte();
@@ -22,6 +21,7 @@ public class Quiz {
         c2.addMauvaiseReponse("une couleur");
         c2.addMauvaiseReponse("une capitale");
         c2.addMauvaiseReponse("un animal");
+        c2.addMauvaiseReponse("un sport");
         cartes.add(c2);
 
         Carte c3 = new Carte();

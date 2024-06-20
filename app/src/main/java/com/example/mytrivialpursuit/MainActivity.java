@@ -2,12 +2,15 @@ package com.example.mytrivialpursuit;
 
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.LinearLayoutCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -26,22 +29,13 @@ public class MainActivity extends AppCompatActivity {
     int ind_c;
     Carte c;
 
+    Button[] buttons;
+
 
     int n;
     int[] cartes_restantes;
 
     boolean quiz_over;
-
-    public Button pick_button(int index) {
-        if (index == 1) {
-            return findViewById(R.id.button1);
-        } else if (index == 2) {
-            return findViewById(R.id.button2);
-        } else if (index == 3) {
-            return findViewById(R.id.button3);
-        }
-        return findViewById(R.id.button4);
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,59 +57,58 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void newCarte() {
+        LinearLayout layout = findViewById(R.id.main);
+
         c = q.getCarte(ind_c);
 
-        TextView question_text = findViewById(R.id.textView_question);
+        TextView question_text = new TextView(getApplicationContext());
         question_text.setText(c.getQuestion());
+        layout.addView(question_text);
 
-        i_right = r.nextInt(4) + 1;
-        Button b_right = pick_button(i_right);
-        b_right.setText(c.getBonneReponse());
-
+        int n_propositions = c.getLength();
+        i_right = r.nextInt(n_propositions) + 1;
+        int k = 0;
         Vector<String> wrong_ans = c.getMauvaisesReponses();
         Collections.shuffle(wrong_ans);
+        for (int i = 1; i <= n_propositions; i++) {
+            Button b = new Button(getApplicationContext());
+            if (i == i_right) {
+                // Bonne réponse
+                b.setText(c.getBonneReponse());
 
-        int k = 0;
-        for (int i = 0; i < 4; i++) {
-            if (i != i_right) {
-                Button b_wrong = pick_button(i);
-                b_wrong.setText(wrong_ans.get(k));
-                k++;
-            }
-        }
-    }
-
-    public void reponse(View view) {
-        int ans;
-        if (view.getId() == R.id.button1) {
-            ans = 1;
-        } else if (view.getId() == R.id.button2) {
-            ans = 2;
-        } else if (view.getId() == R.id.button3) {
-            ans = 3;
-        } else {
-            ans = 4;
-        }
-
-        Toast toast = new Toast(getApplicationContext());
-        if (!quiz_over) {
-            if (ans == i_right) {
-                toast.setText("Bravo !");
-                ind_c++;
-                if (ind_c >= 3) {
-                    toast.setText("Féliciations, vous avez terminé le quiz !");
-                    quiz_over = true;
-                } else {
-                    newCarte();
-                }
+                b.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Toast.makeText(getApplicationContext(), "Bonne réponse.", Toast.LENGTH_SHORT).show();
+                        layout.removeAllViews();
+                        ind_c++;
+                        if (ind_c >= 3) {
+                            TextView question_text = new TextView(getApplicationContext());
+                            question_text.setText("Félicitations, vous avez terminé le quiz !");
+                            layout.addView(question_text);
+                            quiz_over = true;
+                        } else {
+                            newCarte();
+                        }
+                    }
+                });
             } else {
-                toast.setText("Mauvaise réponse.");
+                // Mauvaise réponse
+
+                b.setText(wrong_ans.get(k));
+                k++;
+                b.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Toast.makeText(getApplicationContext(), "Mauvaise réponse", Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
-        } else {
-            toast.setText("Le test est terminé.");
+
+            layout.addView(b);
+            ViewGroup.LayoutParams layoutParams = b.getLayoutParams();
+            layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+            b.setLayoutParams(layoutParams);
         }
-        toast.show();
     }
-
-
 }

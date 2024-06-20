@@ -19,6 +19,8 @@ public class Carte {
         return mauvaisesReponses;
     }
 
+    public int getLength() { return 1 + mauvaisesReponses.size(); }
+
     public Carte() {
         mauvaisesReponses = new Vector<String>();
     }
