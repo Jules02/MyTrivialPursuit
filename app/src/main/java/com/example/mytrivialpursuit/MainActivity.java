@@ -73,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
         Vector<String> wrong_ans = c.getMauvaisesReponses();
         Collections.shuffle(wrong_ans);
         for (int i = 1; i <= n_propositions; i++) {
-            Button b = new Button(getApplicationContext());
+            Button b = new MaterialButton(this);
             if (i == i_right) {
                 // Bonne réponse
                 b.setText(c.getBonneReponse());
