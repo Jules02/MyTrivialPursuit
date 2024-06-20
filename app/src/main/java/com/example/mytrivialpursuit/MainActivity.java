@@ -1,5 +1,6 @@
 package com.example.mytrivialpursuit;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,6 +38,8 @@ public class MainActivity extends AppCompatActivity {
     int n;
     int[] cartes_restantes;
 
+    int score;
+    int tries;
     boolean quiz_over;
 
     @Override
@@ -55,6 +58,8 @@ public class MainActivity extends AppCompatActivity {
         q = new Quiz();
 
         ind_c = 0;
+        score = 0;
+        tries = 0;
         newCarte();
     }
 
@@ -84,12 +89,20 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText(getApplicationContext(), "Bonne réponse.", Toast.LENGTH_SHORT).show();
                         layout.removeAllViews();
                         ind_c++;
+
+                        if (tries == 0) {
+                            score += 2;
+                        } else if (tries == 1) {
+                            score += 1;
+                        }
+
                         if (ind_c >= 3) {
-                            TextView question_text = new TextView(getApplicationContext());
-                            question_text.setText("Félicitations, vous avez terminé le quiz !");
-                            layout.addView(question_text);
+                            Intent intentEndOfGame = new Intent(getApplicationContext(), EndOfGame.class);
+                            intentEndOfGame.putExtra("s", score);
+                            startActivity(intentEndOfGame);
                             quiz_over = true;
                         } else {
+                            tries = 0;
                             newCarte();
                         }
                     }
@@ -103,6 +116,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View view) {
                         Toast.makeText(getApplicationContext(), "Mauvaise réponse", Toast.LENGTH_SHORT).show();
+                        tries++;
                     }
                 });
             }
