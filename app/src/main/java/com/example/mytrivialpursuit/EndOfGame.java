@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -23,6 +24,33 @@ import com.google.android.material.button.MaterialButton;
 import java.util.zip.InflaterInputStream;
 
 public class EndOfGame extends AppCompatActivity {
+
+    public void newRecordHolder(Context context, ViewGroup layout, SharedPreferences sharedPreferences, float score_normalise) {
+        EditText editTextPseudo = new EditText(context);
+        editTextPseudo.setHint("Pseudo");
+        layout.addView(editTextPseudo);
+
+        Button confirm_pseudo_b = new Button(context);
+        confirm_pseudo_b.setText("Confirmer");
+
+        confirm_pseudo_b.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String pseudo = editTextPseudo.getText().toString();
+
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putFloat("record", score_normalise);
+                editor.putString("record_holder", pseudo);
+                editor.apply();
+
+                // On renvoie le joueur à l'accueil, pour une nouvelle tentative
+                Intent intentMain = new Intent(getApplicationContext(), MainActivity.class);
+                startActivity(intentMain);
+                Toast.makeText(getApplicationContext(), "Continuez à l'améliorer !", Toast.LENGTH_SHORT).show();
+            }
+        });
+        layout.addView(confirm_pseudo_b);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,42 +79,28 @@ public class EndOfGame extends AppCompatActivity {
         congrats_text.setText("Félicitations, vous avez terminé le quiz !\nVotre score: " + String.valueOf(score) + "/" + String.valueOf(max_score) + " (" + String.valueOf(rounded_score_normalise) + "%)");
         layout.addView(congrats_text);
 
+        // Récupérons les données relatives au record
         SharedPreferences sharedPreferences = getSharedPreferences("record", Context.MODE_PRIVATE);
 
         if (sharedPreferences.contains("record") & sharedPreferences.contains("record_holder")) {
+            // Un record a déjà été écrit
+
             float record = sharedPreferences.getFloat("record", (float) 0.0);
             float rounded_record = Math.round(record * 100.0f) / 100.0f;
+
             String record_holder = sharedPreferences.getString("record_holder", "Nobody");
+
             if (score_normalise >= record) {
+                // Le joueur vient d'établir un nouveau record
+
                 TextView new_record_text = new TextView(getApplicationContext());
                 new_record_text.setText("Vous établissez un nouveau record ! (ancien record: " + String.valueOf(rounded_record) + "%, établi par " + record_holder + ")\n Renseignez votre pseudo:");
                 layout.addView(new_record_text);
 
-                EditText editTextPseudo = new EditText(getApplicationContext());
-                editTextPseudo.setHint("Pseudo");
-                layout.addView(editTextPseudo);
-
-                Button confirm_pseudo_b = new Button(getApplicationContext());
-                confirm_pseudo_b.setText("Confirmer");
-                confirm_pseudo_b.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        String pseudo = editTextPseudo.getText().toString();
-
-                        SharedPreferences.Editor editor = sharedPreferences.edit();
-                        editor.putFloat("record", score_normalise);
-                        editor.putString("record_holder", pseudo);
-                        editor.apply();
-
-                        Intent intentMain = new Intent(getApplicationContext(), MainActivity.class);
-                        startActivity(intentMain);
-                        Toast.makeText(getApplicationContext(), "Continuez à l'améliorer !", Toast.LENGTH_SHORT).show();
-                    }
-                });
-                layout.addView(confirm_pseudo_b);
+                newRecordHolder(getApplicationContext(), layout, sharedPreferences, score_normalise);
             } else {
                 TextView no_record_text = new TextView(getApplicationContext());
-                no_record_text.setText("Hélas, ce n'est pas assez pour battre l'ancien record de " + String.valueOf(record) + "%, établi par " + record_holder);
+                no_record_text.setText("Hélas, ce n'est pas assez pour battre l'ancien record de " + String.valueOf(rounded_record) + "%, établi par " + record_holder);
                 layout.addView(no_record_text);
 
                 Button retry_b = new MaterialButton(this);
@@ -105,29 +119,7 @@ public class EndOfGame extends AppCompatActivity {
             new_record_text.setText("Vous établissez un nouveau record ! (premier joueur)\nRenseignez votre pseudo:");
             layout.addView(new_record_text);
 
-            EditText editTextPseudo = new EditText(getApplicationContext());
-            editTextPseudo.setHint("Pseudo");
-            layout.addView(editTextPseudo);
-
-
-            Button confirm_pseudo_b = new Button(getApplicationContext());
-            confirm_pseudo_b.setText("Confirmer");
-            confirm_pseudo_b.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    String pseudo = editTextPseudo.getText().toString();
-
-                    SharedPreferences.Editor editor = sharedPreferences.edit();
-                    editor.putFloat("record", score_normalise);
-                    editor.putString("record_holder", pseudo);
-                    editor.apply();
-
-                    Intent intentMain = new Intent(getApplicationContext(), MainActivity.class);
-                    startActivity(intentMain);
-                    Toast.makeText(getApplicationContext(), "Continuez à l'améliorer !", Toast.LENGTH_SHORT).show();
-                }
-            });
-            layout.addView(confirm_pseudo_b);
+            newRecordHolder(getApplicationContext(), layout, sharedPreferences, score_normalise);
         }
     }
 }
