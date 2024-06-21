@@ -18,6 +18,8 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.android.material.button.MaterialButton;
+
 import java.util.zip.InflaterInputStream;
 
 public class EndOfGame extends AppCompatActivity {
@@ -35,25 +37,33 @@ public class EndOfGame extends AppCompatActivity {
 
         LinearLayout layout = findViewById(R.id.main);
 
+        // On récupère les données de l'appelant, constituées du score réalisé par le joueur ainsi que du score qui lui était possible d'atteindre.
         Intent appelant = getIntent();
         int score = appelant.getIntExtra("s", 0);
         int max_score = appelant.getIntExtra("ms", 0);
+        // On va définir un "score normalisé", qui nous permettra de comparer les tentatives sur des quiz différents
+        float score_normalise = ((float) score / max_score)*100;
+        float rounded_score_normalise = Math.round(score_normalise * 100.0f) / 100.0f;
 
+
+        // Affichons d'abord au joueur son score
         TextView congrats_text = new TextView(getApplicationContext());
-        congrats_text.setText("Félicitations, vous avez terminé le quiz !\nVotre score: " + String.valueOf(score) + "/" + String.valueOf(max_score));
+        congrats_text.setText("Félicitations, vous avez terminé le quiz !\nVotre score: " + String.valueOf(score) + "/" + String.valueOf(max_score) + " (" + String.valueOf(rounded_score_normalise) + "%)");
         layout.addView(congrats_text);
 
         SharedPreferences sharedPreferences = getSharedPreferences("record", Context.MODE_PRIVATE);
 
         if (sharedPreferences.contains("record") & sharedPreferences.contains("record_holder")) {
-            int record = sharedPreferences.getInt("record", -1);
+            float record = sharedPreferences.getFloat("record", (float) 0.0);
+            float rounded_record = Math.round(record * 100.0f) / 100.0f;
             String record_holder = sharedPreferences.getString("record_holder", "Nobody");
-            if (score >= record) {
+            if (score_normalise >= record) {
                 TextView new_record_text = new TextView(getApplicationContext());
-                new_record_text.setText("Vous établissez un nouveau record ! (ancien record: " + String.valueOf(record) + ", établi par " + record_holder + ")\n Renseignez votre pseudo:");
+                new_record_text.setText("Vous établissez un nouveau record ! (ancien record: " + String.valueOf(rounded_record) + "%, établi par " + record_holder + ")\n Renseignez votre pseudo:");
                 layout.addView(new_record_text);
 
                 EditText editTextPseudo = new EditText(getApplicationContext());
+                editTextPseudo.setHint("Pseudo");
                 layout.addView(editTextPseudo);
 
                 Button confirm_pseudo_b = new Button(getApplicationContext());
@@ -64,7 +74,7 @@ public class EndOfGame extends AppCompatActivity {
                         String pseudo = editTextPseudo.getText().toString();
 
                         SharedPreferences.Editor editor = sharedPreferences.edit();
-                        editor.putInt("record", score);
+                        editor.putFloat("record", score_normalise);
                         editor.putString("record_holder", pseudo);
                         editor.apply();
 
@@ -76,8 +86,19 @@ public class EndOfGame extends AppCompatActivity {
                 layout.addView(confirm_pseudo_b);
             } else {
                 TextView no_record_text = new TextView(getApplicationContext());
-                no_record_text.setText("Hélas, ce n'est pas assez pour battre l'ancien record de " + String.valueOf(record) + " points, établi par " + record_holder);
+                no_record_text.setText("Hélas, ce n'est pas assez pour battre l'ancien record de " + String.valueOf(record) + "%, établi par " + record_holder);
                 layout.addView(no_record_text);
+
+                Button retry_b = new MaterialButton(this);
+                retry_b.setText("Réessayer");
+                retry_b.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent intentMain = new Intent(getApplicationContext(), MainActivity.class);
+                        startActivity(intentMain);
+                    }
+                });
+                layout.addView(retry_b);
             }
         } else {
             TextView new_record_text = new TextView(getApplicationContext());
@@ -85,7 +106,7 @@ public class EndOfGame extends AppCompatActivity {
             layout.addView(new_record_text);
 
             EditText editTextPseudo = new EditText(getApplicationContext());
-            String pseudo = editTextPseudo.getText().toString();
+            editTextPseudo.setHint("Pseudo");
             layout.addView(editTextPseudo);
 
 
@@ -94,8 +115,10 @@ public class EndOfGame extends AppCompatActivity {
             confirm_pseudo_b.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    String pseudo = editTextPseudo.getText().toString();
+
                     SharedPreferences.Editor editor = sharedPreferences.edit();
-                    editor.putInt("record", score);
+                    editor.putFloat("record", score_normalise);
                     editor.putString("record_holder", pseudo);
                     editor.apply();
 

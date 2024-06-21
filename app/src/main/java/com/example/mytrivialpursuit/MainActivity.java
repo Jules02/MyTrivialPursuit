@@ -1,6 +1,9 @@
 package com.example.mytrivialpursuit;
 
+import android.app.SearchManager;
 import android.content.Intent;
+import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +15,7 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.LinearLayoutCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -26,22 +30,17 @@ import java.util.stream.IntStream;
 public class MainActivity extends AppCompatActivity {
     Random r;
 
-    int i_right;
-
     Quiz q;
+    // ind_c correspond à l'indice de la carte auquel s'attele le joueur
     int ind_c;
     Carte c;
 
-    Button[] buttons;
-
-
-    int n;
-    int[] cartes_restantes;
+    // i_right correspond à l'indice, tiré aléatoirement, du bouton associé à la bonne réponse pour la carte courante
+    int i_right;
 
     int score;
     int max_score;
     int tries;
-    boolean quiz_over;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,15 +73,47 @@ public class MainActivity extends AppCompatActivity {
         question_text.setText(c.getQuestion());
         layout.addView(question_text);
 
+        // ----------------------------
+        // CHERCHER DE L'AIDE (étape 5)
+        // ----------------------------
+        Button search_help_b = new MaterialButton(this);
+        search_help_b.setText("Chercher de l'aide");
+        search_help_b.setBackgroundColor(ContextCompat.getColor(this, R.color.yellow));
+        search_help_b.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Une recherche d'aide est considérée comme un essai raté
+                tries++;
+
+                // On lance l'activité "recherche d'aide sur Google"
+                Intent help_intent = new Intent(Intent.ACTION_WEB_SEARCH);
+                help_intent.putExtra(SearchManager.QUERY, c.getQuestion());
+                startActivity(help_intent);
+            }
+        });
+        layout.addView(search_help_b);
+
+
+
+        // --------------------------
+        // AFFICHAGE DES PROPOSITIONS
+        // --------------------------
+
+        // Déterminons d'abord le nombre total de boutons qui apparîtront.
         int n_propositions = c.getLength();
+
+        // Concernant l'aléatoire, on va d'abord tirer l'indice du bouton où se trouvera la bonne réponse, puis on shuffle les mauvaise réponses.
         i_right = r.nextInt(n_propositions) + 1;
         int k = 0;
         Vector<String> wrong_ans = c.getMauvaisesReponses();
         Collections.shuffle(wrong_ans);
+
+        // Bouclons à travers les différents boutons
         for (int i = 1; i <= n_propositions; i++) {
             Button b = new MaterialButton(this);
+
             if (i == i_right) {
-                // Bonne réponse
+                // On traite le bouton qui contiendra la bonne réponse
                 b.setText(c.getBonneReponse());
 
                 b.setOnClickListener(new View.OnClickListener() {
@@ -92,29 +123,32 @@ public class MainActivity extends AppCompatActivity {
                         layout.removeAllViews();
                         ind_c++;
 
+                        // Détermination du score associé à la carte
                         if (tries == 0) {
                             score += 2;
                         } else if (tries == 1) {
                             score += 1;
                         }
 
-                        if (ind_c >= 3) {
+                        // On vérifie si le joueur a terminé le quiz ou non
+                        if (ind_c >= q.getNbCartes()) {
+                            // Quiz terminé
                             Intent intentEndOfGame = new Intent(getApplicationContext(), EndOfGame.class);
                             intentEndOfGame.putExtra("s", score);
                             intentEndOfGame.putExtra("ms", max_score);
                             startActivity(intentEndOfGame);
-                            quiz_over = true;
                         } else {
+                            // Quiz non terminé
                             tries = 0;
                             newCarte();
                         }
                     }
                 });
             } else {
-                // Mauvaise réponse
-
+                // On traite un bouton qui contiendra une mauvaise réponse
                 b.setText(wrong_ans.get(k));
                 k++;
+
                 b.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
