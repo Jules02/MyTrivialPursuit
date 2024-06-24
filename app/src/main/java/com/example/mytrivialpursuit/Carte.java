@@ -1,8 +1,9 @@
 package com.example.mytrivialpursuit;
 
+import java.io.Serializable;
 import java.util.Vector;
 
-public class Carte {
+public class Carte implements Serializable {
     private String question;
     private String bonneReponse;
     private Vector<String> mauvaisesReponses;

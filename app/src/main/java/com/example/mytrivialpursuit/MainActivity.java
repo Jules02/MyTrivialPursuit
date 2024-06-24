@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -55,7 +56,13 @@ public class MainActivity extends AppCompatActivity {
 
         r = new Random();
 
-        q = new Quiz();
+        // Get the intent from the MainActivity
+        Intent intent = getIntent();
+
+        // Get the MyCustomObject from the intent's extras
+        q = (Quiz) intent.getSerializableExtra("object");
+
+        Log.i("mon_quiz", q.getCarte(0).getBonneReponse());
 
         ind_c = 0;
         score = 0;
