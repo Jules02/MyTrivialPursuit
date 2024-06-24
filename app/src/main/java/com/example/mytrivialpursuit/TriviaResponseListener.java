@@ -42,7 +42,7 @@ public class TriviaResponseListener implements Response.Listener<String> {
         } catch (JSONException e) {
             q.creerQuizDefaut();
 
-            throw new RuntimeException(e);
+            //throw new RuntimeException(e);
         }
 
     }

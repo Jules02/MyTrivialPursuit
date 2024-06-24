@@ -2,6 +2,7 @@ package com.example.mytrivialpursuit;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 import androidx.activity.EdgeToEdge;
@@ -26,7 +27,7 @@ public class AccueilActivity extends AppCompatActivity {
     Quiz q;
 
     public String getRequestURL(int quiz_length) {
-        return "https://opentdb.com/api.php?amount=" + String.valueOf(quiz_length);
+        return "https://opntdb.com/api.php?amount=" + String.valueOf(quiz_length);
     }
 
     @Override
@@ -46,7 +47,7 @@ public class AccueilActivity extends AppCompatActivity {
 
         RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
         Response.Listener<String> responseListener = new TriviaResponseListener(q);
-        Response.ErrorListener errorListener = new TriviaErrorListener();
+        Response.ErrorListener errorListener = new TriviaErrorListener(q);
         StringRequest request = new StringRequest(Request.Method.GET,
                 getRequestURL(quiz_length),
                 responseListener,
